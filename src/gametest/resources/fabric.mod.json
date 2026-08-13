@@ -1,0 +1,17 @@
+{
+	"schemaVersion": 1,
+	"id": "day_night_bed_test",
+	"version": "${version}",
+	"name": "Day Night Bed Game Tests",
+	"environment": "*",
+	"entrypoints": {
+		"fabric-gametest": [
+			"day_night_bed.gametest.ModLoadsGameTest"
+		]
+	},
+	"depends": {
+		"day_night_bed": "*",
+		"fabric-api": "*",
+		"minecraft": "~1.21.11"
+	}
+}

@@ -1,0 +1,27 @@
+{
+	"schemaVersion": 1,
+	"id": "day_night_bed",
+	"version": "${version}",
+	"name": "Day Bed - master of the Night Bed",
+	"description": "Use a vanilla bed at any time to toggle world time between day and night.",
+	"authors": [
+		"spicato"
+	],
+	"license": "CC0-1.0",
+	"icon": "assets/day_night_bed/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"day_night_bed.DayNightBed"
+		],
+		"client": [
+			"day_night_bed.DayNightBedClient"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~1.21.11",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}
