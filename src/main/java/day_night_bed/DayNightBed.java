@@ -1,5 +1,6 @@
 package day_night_bed;
 
+import day_night_bed.config.DayNightBedConfig;
 import net.fabricmc.api.ModInitializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -10,6 +11,8 @@ public class DayNightBed implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		DayNightBedConfig config = DayNightBedConfig.load();
+		DayNightBedConfig.set(config);
 		LOGGER.info("Day Night Bed initialized");
 	}
 }

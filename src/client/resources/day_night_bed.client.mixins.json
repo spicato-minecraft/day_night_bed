@@ -1,0 +1,11 @@
+{
+	"required": true,
+	"package": "day_night_bed.mixin.client",
+	"compatibilityLevel": "JAVA_21",
+	"client": [
+		"GuiSleepOverlayMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

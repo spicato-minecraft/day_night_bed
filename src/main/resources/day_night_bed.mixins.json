@@ -1,0 +1,13 @@
+{
+	"required": true,
+	"package": "day_night_bed.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"mixins": [
+		"ServerPlayerSleepMixin",
+		"PlayerSleepMixin",
+		"ServerLevelSleepMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

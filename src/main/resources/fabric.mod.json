@@ -18,6 +18,13 @@
 			"day_night_bed.DayNightBedClient"
 		]
 	},
+	"mixins": [
+		"day_night_bed.mixins.json",
+		{
+			"config": "day_night_bed.client.mixins.json",
+			"environment": "client"
+		}
+	],
 	"depends": {
 		"fabricloader": ">=0.19.3",
 		"minecraft": "~1.21.11",
