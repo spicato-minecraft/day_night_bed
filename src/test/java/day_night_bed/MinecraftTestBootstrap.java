@@ -19,6 +19,8 @@ public final class MinecraftTestBootstrap {
 		}
 		SharedConstants.tryDetectVersion();
 		Bootstrap.bootStrap();
+		net.minecraft.core.registries.BuiltInRegistries.ITEM.listElements()
+				.forEach(ref -> ref.bindComponents(net.minecraft.core.component.DataComponentMap.EMPTY));
 		initialized = true;
 	}
 }

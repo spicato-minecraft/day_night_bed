@@ -21,7 +21,7 @@ public final class BedInteractionLogger {
 				player.getGameProfile().name(),
 				pos.toShortString(),
 				player.level().dimension().identifier(),
-				player.level().getDayTime(),
+				DayNightBedSleepSupport.clockTime(player.level()),
 				SleepContextFactory.isDay(player.level()),
 				SleepContextFactory.isNight(player.level()),
 				player.level().isThundering(),
@@ -48,7 +48,7 @@ public final class BedInteractionLogger {
 				updateSleepList,
 				player.isSleeping(),
 				player.getSleepTimer(),
-				player.level().getDayTime()
+				DayNightBedSleepSupport.clockTime(player.level())
 		);
 	}
 
@@ -60,7 +60,7 @@ public final class BedInteractionLogger {
 				"[bed] canSleepCheck source={} dim={} dayTime={} bright={} dark={} vanilla={} resolved={} bedRule={}",
 				source,
 				serverLevel.dimension().identifier(),
-				serverLevel.getDayTime(),
+				DayNightBedSleepSupport.clockTime(serverLevel),
 				SleepContextFactory.isDay(serverLevel),
 				SleepContextFactory.isNight(serverLevel),
 				vanilla,
@@ -88,7 +88,7 @@ public final class BedInteractionLogger {
 				"[bed] sleepTimeAdvanceSkipped dim={} result={} dayTime={}",
 				level.dimension().identifier(),
 				result,
-				level.getDayTime()
+				DayNightBedSleepSupport.clockTime(level)
 		);
 	}
 
@@ -110,7 +110,7 @@ public final class BedInteractionLogger {
 				"[bed] sleepCompletionPending dim={} vanillaDawn={} dayTime={}",
 				level.dimension().identifier(),
 				vanillaDawnTime,
-				level.getDayTime()
+				DayNightBedSleepSupport.clockTime(level)
 		);
 	}
 
@@ -121,7 +121,7 @@ public final class BedInteractionLogger {
 				action,
 				player.isSleeping(),
 				player.getSleepTimer(),
-				player.level().getDayTime()
+				DayNightBedSleepSupport.clockTime(player.level())
 		);
 	}
 }

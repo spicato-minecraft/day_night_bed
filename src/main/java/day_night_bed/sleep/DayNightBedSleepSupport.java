@@ -1,9 +1,13 @@
 package day_night_bed.sleep;
 
 import day_night_bed.config.DayNightBedConfig;
+import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.attribute.BedRule;
+import net.minecraft.world.clock.ClockTimeMarkers;
+import net.minecraft.world.clock.WorldClock;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gamerules.GameRules;
 
 import java.util.Collections;
@@ -18,7 +22,7 @@ import java.util.WeakHashMap;
 public final class DayNightBedSleepSupport {
 
 	private static final Map<ServerLevel, SleepTransitionResult> LAST_SLEEP_TRANSITION = new WeakHashMap<>();
-	private static final Map<ServerLevel, Long> PENDING_VANILLA_DAWN = new WeakHashMap<>();
+	private static final Set<ServerLevel> PENDING_VANILLA_WAKE = Collections.newSetFromMap(new WeakHashMap<>());
 	private static final Set<ServerLevel> TIME_ADVANCE_APPLIED = Collections.newSetFromMap(new WeakHashMap<>());
 
 	private DayNightBedSleepSupport() {
@@ -37,7 +41,7 @@ public final class DayNightBedSleepSupport {
 		return true;
 	}
 
-	/** Overworld toggles defer vanilla {@code setDayTime} until the player actually leaves the bed. */
+	/** Overworld toggles defer vanilla {@code moveToTimeMarker(WAKE_UP_FROM_SLEEP)} until the player leaves the bed. */
 	public static boolean shouldDeferTimeAdvanceToWake(ServerLevel level) {
 		if (!DayNightBedConfig.get().enabled) {
 			return false;
@@ -52,13 +56,13 @@ public final class DayNightBedSleepSupport {
 		return result != SleepTransitionResult.NO_OP;
 	}
 
-	public static void markSleepCompletionPending(ServerLevel level, long vanillaDawnTime) {
-		PENDING_VANILLA_DAWN.put(level, vanillaDawnTime);
-		BedInteractionLogger.sleepCompletionPending(level, vanillaDawnTime);
+	public static void markSleepCompletionPending(ServerLevel level) {
+		PENDING_VANILLA_WAKE.add(level);
+		BedInteractionLogger.sleepCompletionPending(level, clockTime(level));
 	}
 
 	public static void resetSleepCycle(ServerLevel level) {
-		PENDING_VANILLA_DAWN.remove(level);
+		PENDING_VANILLA_WAKE.remove(level);
 		TIME_ADVANCE_APPLIED.remove(level);
 		LAST_SLEEP_TRANSITION.remove(level);
 	}
@@ -80,14 +84,13 @@ public final class DayNightBedSleepSupport {
 			BedInteractionLogger.timeAdvanceDeferredOnWake(player, "already-applied");
 			return;
 		}
-		Long pendingDawn = PENDING_VANILLA_DAWN.remove(level);
-		long vanillaDawn = pendingDawn != null ? pendingDawn : computeVanillaDawnTime(level.getDayTime());
+		PENDING_VANILLA_WAKE.remove(level);
 		BedInteractionLogger.timeAdvanceDeferredOnWake(player, "applying");
-		applySleepTimeAdvance(level, vanillaDawn);
+		applySleepTimeAdvance(level);
 	}
 
-	public static void applySleepTimeAdvance(ServerLevel level, long vanillaDawnTime) {
-		long before = level.getDayTime();
+	public static void applySleepTimeAdvance(ServerLevel level) {
+		long before = clockTime(level);
 		SleepContext context = SleepContextFactory.fromLevel(level);
 		SleepTransitionResult result = SleepTransitionResolver.resolve(context);
 		LAST_SLEEP_TRANSITION.put(level, result);
@@ -95,13 +98,30 @@ public final class DayNightBedSleepSupport {
 		OptionalLong target = SleepTransitionResolver.targetTick(result, context.config());
 		if (target.isEmpty()) {
 			BedInteractionLogger.sleepTimeAdvanceSkipped(level, result);
-			level.setDayTime(vanillaDawnTime);
+			applyVanillaWakeUp(level);
 			return;
 		}
 
 		long dayTime = normalizeDayTime(target.getAsLong());
-		BedInteractionLogger.sleepTimeAdvance(level, result, before, dayTime, vanillaDawnTime);
-		level.setDayTime(dayTime);
+		BedInteractionLogger.sleepTimeAdvance(level, result, before, dayTime, before);
+		setClockTime(level, dayTime);
+	}
+
+	public static long clockTime(Level level) {
+		return level.getDefaultClockTime();
+	}
+
+	public static void setClockTime(ServerLevel level, long ticks) {
+		defaultClock(level).ifPresent(clock -> level.getServer().clockManager().setTotalTicks(clock, ticks));
+	}
+
+	public static void applyVanillaWakeUp(ServerLevel level) {
+		defaultClock(level).ifPresent(clock ->
+				level.getServer().clockManager().moveToTimeMarker(clock, ClockTimeMarkers.WAKE_UP_FROM_SLEEP));
+	}
+
+	private static java.util.Optional<Holder<WorldClock>> defaultClock(ServerLevel level) {
+		return level.dimensionType().defaultClock();
 	}
 
 	public static boolean shouldPreserveWeather(ServerLevel level) {
@@ -128,17 +148,9 @@ public final class DayNightBedSleepSupport {
 	}
 
 	public static void endSleepTick(ServerLevel level) {
-		PENDING_VANILLA_DAWN.remove(level);
+		PENDING_VANILLA_WAKE.remove(level);
 		TIME_ADVANCE_APPLIED.remove(level);
 		clearSleepTransition(level, "tick-tail");
-	}
-
-	private static long computeVanillaDawnTime(long dayTime) {
-		long normalized = dayTime % 24_000L;
-		if (normalized < 0) {
-			normalized += 24_000L;
-		}
-		return dayTime + (24_000L - normalized);
 	}
 
 	private static long normalizeDayTime(long tick) {

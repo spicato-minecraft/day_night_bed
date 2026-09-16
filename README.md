@@ -1,15 +1,15 @@
 # Day Bed - master of the Night Bed
 
-Fabric mod for Minecraft **1.21.11** that lets players use a vanilla bed at any time to toggle world time between day and night.
+Fabric mod for Minecraft **26.1** that lets players use a vanilla bed at any time to toggle world time between day and night.
 
 ## Compatibility
 
 | Component     | Version           |
 |---------------|-------------------|
-| Minecraft     | 1.21.11           |
+| Minecraft     | 26.1              |
 | Fabric Loader | 0.19.3+           |
-| Fabric API    | 0.141.6+1.21.11   |
-| Java          | 21+               |
+| Fabric API    | 0.145.1+26.1      |
+| Java          | 25+               |
 
 ## Build
 
@@ -31,30 +31,30 @@ The output JAR is at `build/libs/day_night_bed-1.0.0.jar` (version from `gradle.
 
 ## Install
 
-1. Install [Fabric Loader](https://fabricmc.net/use/) for Minecraft 1.21.11.
-2. Download [Fabric API](https://modrinth.com/mod/fabric-api) for 1.21.11 and place it in your mods folder.
+1. Install [Fabric Loader](https://fabricmc.net/use/) for Minecraft 26.1.
+2. Download [Fabric API](https://modrinth.com/mod/fabric-api) for 26.1 and place it in your mods folder.
 3. Copy the built JAR into your Minecraft `mods` folder.
 
 ## Branch Policy
 
 Each supported Minecraft version has its own long-lived branch named after the exact `minecraft_version` in `gradle.properties`. Version branches are the source of truth; `main` is not used.
 
-- **Default branch:** `1.21.11`
+- **Default branch:** `26.1`
 - **Feature/fix work:** branch from the target version as `{version}/feature-name`, merge back into the version branch
 
 ```bash
 git clone https://github.com/spicato-minecraft/day_night_bed.git
 cd day_night_bed
-git checkout 1.21.11
+git checkout 26.1
 ```
 
 ## Releases and Modrinth
 
 Merging code does **not** publish to Modrinth. Publishing happens only when a GitHub Release is created.
 
-Release tags use `{minecraft_version}-{mod_version}` (e.g. `1.21.11-1.0.0`), matching `gradle.properties`.
+Release tags use `{minecraft_version}-{mod_version}` (e.g. `26.1-1.0.0`), matching `gradle.properties`.
 
-1. Merge your changes into the version branch (e.g. `1.21.11`).
+1. Merge your changes into the version branch (e.g. `26.1`).
 2. Bump `mod_version` in `gradle.properties` if shipping new player-facing changes.
 3. Add a changelog at `releases/{tag}.md` — see `releases/TEMPLATE.md`.
 4. Create a GitHub Release with tag `{minecraft_version}-{mod_version}` targeting the version branch.

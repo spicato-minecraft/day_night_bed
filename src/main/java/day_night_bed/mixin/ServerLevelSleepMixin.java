@@ -2,7 +2,13 @@ package day_night_bed.mixin;
 
 import day_night_bed.sleep.BedInteractionLogger;
 import day_night_bed.sleep.DayNightBedSleepSupport;
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.clock.ClockTimeMarker;
+import net.minecraft.world.clock.ClockTimeMarkers;
+import net.minecraft.world.clock.ServerClockManager;
+import net.minecraft.world.clock.WorldClock;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -16,16 +22,20 @@ public abstract class ServerLevelSleepMixin {
 			method = "tick",
 			at = @At(
 					value = "INVOKE",
-					target = "Lnet/minecraft/server/level/ServerLevel;setDayTime(J)V",
-					ordinal = 0
+					target = "Lnet/minecraft/world/clock/ServerClockManager;moveToTimeMarker(Lnet/minecraft/core/Holder;Lnet/minecraft/resources/ResourceKey;)Z"
 			)
 	)
-	private void dayNightBed$redirectSleepSkipTime(ServerLevel instance, long vanillaDawnTime) {
-		if (DayNightBedSleepSupport.shouldDeferTimeAdvanceToWake(instance)) {
-			DayNightBedSleepSupport.markSleepCompletionPending(instance, vanillaDawnTime);
-			return;
+	private boolean dayNightBed$redirectSleepSkipTime(
+			ServerClockManager clockManager,
+			Holder<WorldClock> clock,
+			ResourceKey<ClockTimeMarker> marker
+	) {
+		ServerLevel level = (ServerLevel) (Object) this;
+		if (marker == ClockTimeMarkers.WAKE_UP_FROM_SLEEP && DayNightBedSleepSupport.shouldDeferTimeAdvanceToWake(level)) {
+			DayNightBedSleepSupport.markSleepCompletionPending(level);
+			return true;
 		}
-		DayNightBedSleepSupport.applySleepTimeAdvance(instance, vanillaDawnTime);
+		return clockManager.moveToTimeMarker(clock, marker);
 	}
 
 	@Redirect(
