@@ -10,7 +10,7 @@ import net.minecraft.network.chat.Component;
 
 /**
  * Drives sleep action-bar copy in offline singleplayer, where vanilla skips {@code announceSleepStatus}.
- * Completion copy uses vanilla {@link net.minecraft.client.gui.Gui#setOverlayMessage} display time (60 ticks).
+ * Completion copy uses vanilla {@link net.minecraft.client.gui.Hud#setOverlayMessage} display time (60 ticks).
  */
 public final class ClientSleepOverlay {
 
@@ -46,14 +46,14 @@ public final class ClientSleepOverlay {
 			boolean deepSleep = player.getSleepTimer() >= DEEP_SLEEP_TICKS;
 			completedDeepSleep = completedDeepSleep || deepSleep;
 			Component overlay = SleepOverlayMessages.createLocalOverlay(lastMode, deepSleep, 1, 1);
-			client.gui.setOverlayMessage(overlay, false);
+			client.gui.hud.setOverlayMessage(overlay, false);
 			wasSleeping = true;
 			return;
 		}
 
 		if (wasSleeping && completedDeepSleep) {
 			Component completion = SleepOverlayMessages.createLocalOverlay(lastMode, true, 1, 1);
-			client.gui.setOverlayMessage(completion, false);
+			client.gui.hud.setOverlayMessage(completion, false);
 		}
 		resetTracking();
 	}
