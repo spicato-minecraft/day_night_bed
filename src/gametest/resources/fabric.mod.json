@@ -6,7 +6,14 @@
 	"environment": "*",
 	"entrypoints": {
 		"fabric-gametest": [
-			"day_night_bed.gametest.ModLoadsGameTest"
+			"day_night_bed.gametest.ModLoadsGameTest",
+			"day_night_bed.gametest.BedSleepGameTest",
+			"day_night_bed.gametest.ServerMixinApplySweepGameTest"
+		],
+		"fabric-client-gametest": [
+			"day_night_bed.clientgametest.ClientMixinApplySweepGameTest",
+			"day_night_bed.clientgametest.DayRestOverlayClientGameTest",
+			"day_night_bed.clientgametest.NightAndStormOverlayClientGameTest"
 		]
 	},
 	"depends": {
