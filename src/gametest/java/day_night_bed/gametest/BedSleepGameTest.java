@@ -141,7 +141,7 @@ public class BedSleepGameTest {
 			BedSleepHarness.requireDay(context);
 			long clock = level.getDefaultClockTime();
 			BedSleepHarness.Sleeper sleeper = BedSleepHarness.sleeperAt(context, BedSleepHarness.BED_FOOT);
-			Either<Player.BedSleepingProblem, Unit> result = sleeper.player().startSleepInBed(sleeper.bed());
+			Either<Player.BedSleepingProblem, Unit> result = BedSleepHarness.trySleep(sleeper);
 			context.assertTrue(result.left().isPresent(), "daytime sleep should be rejected while the mod is disabled");
 			context.assertFalse(sleeper.player().isSleeping(), "rejected daytime sleep should leave the player awake");
 			context.assertValueEqual(level.getDefaultClockTime(), clock, "clock");
@@ -162,7 +162,7 @@ public class BedSleepGameTest {
 			BedSleepHarness.requireDay(context);
 			long clock = level.getDefaultClockTime();
 			BedSleepHarness.Sleeper sleeper = BedSleepHarness.sleeperAt(context, BedSleepHarness.BED_FOOT);
-			Either<Player.BedSleepingProblem, Unit> result = sleeper.player().startSleepInBed(sleeper.bed());
+			Either<Player.BedSleepingProblem, Unit> result = BedSleepHarness.trySleep(sleeper);
 			context.assertTrue(result.left().isPresent(), "daytime sleep should be rejected when the daylight cycle is off");
 			context.assertFalse(sleeper.player().isSleeping(), "rejected daytime sleep should leave the player awake");
 			context.assertValueEqual(level.getDefaultClockTime(), clock, "clock");
@@ -227,7 +227,7 @@ public class BedSleepGameTest {
 		BedSleepHarness.Sleeper sleeper = BedSleepHarness.sleeperAt(context, BedSleepHarness.BED_FOOT);
 		Stat<Identifier> rest = restStat();
 		sleeper.player().getStats().setValue(sleeper.player(), rest, REST_STAT);
-		Either<Player.BedSleepingProblem, Unit> result = sleeper.player().startSleepInBed(sleeper.bed());
+		Either<Player.BedSleepingProblem, Unit> result = BedSleepHarness.trySleep(sleeper);
 		if (result.left().isPresent()) {
 			throw context.assertionException("sleep rejected: " + result.left().get());
 		}

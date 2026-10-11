@@ -12,6 +12,7 @@ import net.minecraft.util.Unit;
 import net.minecraft.world.entity.Relative;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.block.AbstractBedBlock;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -114,7 +115,7 @@ final class BedSleepHarness {
 
 	static Sleeper enterBed(GameTestHelper context, BlockPos foot) {
 		Sleeper sleeper = sleeperAt(context, foot);
-		Either<Player.BedSleepingProblem, Unit> result = sleeper.player().startSleepInBed(sleeper.bed());
+		Either<Player.BedSleepingProblem, Unit> result = trySleep(sleeper);
 		if (result.left().isPresent()) {
 			throw context.assertionException("sleep rejected: " + result.left().get());
 		}
@@ -145,6 +146,15 @@ final class BedSleepHarness {
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	static Either<Player.BedSleepingProblem, Unit> trySleep(Sleeper sleeper) {
+		ServerLevel level = sleeper.player().level();
+		BlockState state = level.getBlockState(sleeper.bed());
+		if (!(state.getBlock() instanceof AbstractBedBlock bed)) {
+			throw new IllegalStateException("expected a bed at " + sleeper.bed() + " but found " + state);
+		}
+		return sleeper.player().startSleepInBed(bed, state, bed.getBedRule(level, sleeper.bed()), sleeper.bed());
 	}
 
 	static void finishRest(GameTestHelper context, ServerPlayer player) {

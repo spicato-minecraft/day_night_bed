@@ -22,10 +22,10 @@ public abstract class ServerLevelSleepMixin {
 			method = "tick",
 			at = @At(
 					value = "INVOKE",
-					target = "Lnet/minecraft/world/clock/ServerClockManager;moveToTimeMarker(Lnet/minecraft/core/Holder;Lnet/minecraft/resources/ResourceKey;)Z"
+					target = "Lnet/minecraft/world/clock/ServerClockManager;moveToTimeMarker(Lnet/minecraft/core/Holder;Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/world/clock/ServerClockManager$MoveResult;"
 			)
 	)
-	private boolean dayNightBed$redirectSleepSkipTime(
+	private ServerClockManager.MoveResult dayNightBed$redirectSleepSkipTime(
 			ServerClockManager clockManager,
 			Holder<WorldClock> clock,
 			ResourceKey<ClockTimeMarker> marker
@@ -33,7 +33,8 @@ public abstract class ServerLevelSleepMixin {
 		ServerLevel level = (ServerLevel) (Object) this;
 		if (marker == ClockTimeMarkers.WAKE_UP_FROM_SLEEP && DayNightBedSleepSupport.shouldDeferTimeAdvanceToWake(level)) {
 			DayNightBedSleepSupport.markSleepCompletionPending(level);
-			return true;
+			// ServerLevel.tick discards this result; MOVED matches the old boolean success.
+			return ServerClockManager.MoveResult.MOVED;
 		}
 		return clockManager.moveToTimeMarker(clock, marker);
 	}

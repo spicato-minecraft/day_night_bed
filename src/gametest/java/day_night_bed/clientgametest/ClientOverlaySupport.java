@@ -14,6 +14,7 @@ import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.block.AbstractBedBlock;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -97,7 +98,11 @@ final class ClientOverlaySupport {
 			level.setBlockAndUpdate(foot.above(), Blocks.AIR.defaultBlockState());
 			level.setBlockAndUpdate(foot.relative(Direction.WEST).above(), Blocks.AIR.defaultBlockState());
 			player.teleportTo(level, foot.getX() + 0.5, foot.getY(), foot.getZ() + 0.5, java.util.Set.of(), 0.0F, 0.0F, true);
-			var result = player.startSleepInBed(foot);
+			BlockState sleptIn = level.getBlockState(foot);
+			if (!(sleptIn.getBlock() instanceof AbstractBedBlock bed)) {
+				throw new AssertionError("expected a bed at " + foot + " but found " + sleptIn);
+			}
+			var result = player.startSleepInBed(bed, sleptIn, bed.getBedRule(level, foot), foot);
 			if (result.left().isPresent()) {
 				throw new AssertionError("sleep rejected: " + result.left().get());
 			}

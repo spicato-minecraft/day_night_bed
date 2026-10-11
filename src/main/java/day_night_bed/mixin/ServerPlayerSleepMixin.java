@@ -13,6 +13,8 @@ import net.minecraft.util.Unit;
 import net.minecraft.world.attribute.BedRule;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.AbstractBedBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -24,12 +26,24 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class ServerPlayerSleepMixin {
 
 	@Inject(method = "startSleepInBed", at = @At("HEAD"))
-	private void dayNightBed$logStartSleepInBedHead(BlockPos pos, CallbackInfoReturnable<Either<Player.BedSleepingProblem, Unit>> cir) {
+	private void dayNightBed$logStartSleepInBedHead(
+			AbstractBedBlock bed,
+			BlockState state,
+			BedRule bedRule,
+			BlockPos pos,
+			CallbackInfoReturnable<Either<Player.BedSleepingProblem, Unit>> cir
+	) {
 		BedInteractionLogger.startSleepInBed((ServerPlayer) (Object) this, pos, "enter", "");
 	}
 
 	@Inject(method = "startSleepInBed", at = @At("RETURN"))
-	private void dayNightBed$logStartSleepInBedReturn(BlockPos pos, CallbackInfoReturnable<Either<Player.BedSleepingProblem, Unit>> cir) {
+	private void dayNightBed$logStartSleepInBedReturn(
+			AbstractBedBlock bed,
+			BlockState state,
+			BedRule bedRule,
+			BlockPos pos,
+			CallbackInfoReturnable<Either<Player.BedSleepingProblem, Unit>> cir
+	) {
 		Either<Player.BedSleepingProblem, Unit> result = cir.getReturnValue();
 		String outcome = result.left().isPresent() ? "rejected" : "accepted";
 		Object detail = result.left().map(Object::toString).orElse("ok");
@@ -37,7 +51,7 @@ public abstract class ServerPlayerSleepMixin {
 	}
 
 	@Inject(method = "startSleeping", at = @At("HEAD"))
-	private void dayNightBed$onStartSleeping(BlockPos pos, CallbackInfo ci) {
+	private void dayNightBed$onStartSleeping(BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
 		ServerPlayer player = (ServerPlayer) (Object) this;
 		DayNightBedSleepSupport.resetSleepCycle(player.level());
 		BedInteractionLogger.startSleeping(player, pos);
