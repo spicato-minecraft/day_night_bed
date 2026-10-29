@@ -26,9 +26,37 @@ public class BedSleepGameTest {
 		ServerLevel level = BedSleepHarness.begin(context);
 		BedSleepHarness.setClearWeather(level);
 		BedSleepHarness.requireDay(context);
-		ServerPlayer player = BedSleepHarness.enterBed(context, BedSleepHarness.BED_FOOT).player();
-		BedSleepHarness.finishRest(context, player);
+		BedSleepHarness.Sleeper sleeper = BedSleepHarness.enterBed(context, BedSleepHarness.BED_FOOT);
+		BedSleepHarness.finishRest(context, sleeper.player());
 		context.assertValueEqual(level.getDefaultClockTime(), BedSleepHarness.NIGHT_TARGET, "clock");
+		BedSleepHarness.assertBedRemains(context, sleeper.bed());
+		context.succeed();
+	}
+
+	@GameTest(environment = "day_night_bed_test:straw_day_sleep_sets_night", maxTicks = FULL_REST_TICKS, skyAccess = true)
+	public void strawDaySleepSetsNightAndBreaksBed(GameTestHelper context) {
+		finishStrawRest(context, true);
+	}
+
+	@GameTest(environment = "day_night_bed_test:straw_night_sleep_sets_day", maxTicks = FULL_REST_TICKS, skyAccess = true)
+	public void strawNightSleepSetsDayAndBreaksBed(GameTestHelper context) {
+		finishStrawRest(context, false);
+	}
+
+	@GameTest(environment = "day_night_bed_test:straw_early_exit_breaks_bed", maxTicks = 80, skyAccess = true)
+	public void strawEarlyExitBreaksBedWithoutSkippingTime(GameTestHelper context) {
+		ServerLevel level = BedSleepHarness.begin(context);
+		BedSleepHarness.setClearWeather(level);
+		BedSleepHarness.setClock(context, 6_000L);
+		context.assertTrue(level.isBrightOutside(), "straw early exit should start during the day");
+		BedSleepHarness.Sleeper sleeper = BedSleepHarness.enterStrawBed(context, BedSleepHarness.BED_FOOT);
+		BedSleepHarness.tickSleep(sleeper.player(), 5);
+		context.assertTrue(sleeper.player().isSleeping(), "player left the straw bed before the early exit");
+		long before = level.getDefaultClockTime();
+		sleeper.player().stopSleepInBed(false, true);
+		context.assertFalse(sleeper.player().isSleeping(), "player should be awake after leaving early");
+		context.assertValueEqual(level.getDefaultClockTime(), before, "clock");
+		BedSleepHarness.assertBedConsumed(context, sleeper.bed());
 		context.succeed();
 	}
 
@@ -213,6 +241,22 @@ public class BedSleepGameTest {
 		context.assertFalse(first.isSleeping(), "first player should be awake");
 		context.assertFalse(second.isSleeping(), "second player should be awake");
 		context.assertValueEqual(level.getDefaultClockTime(), BedSleepHarness.NIGHT_TARGET, "clock");
+		context.succeed();
+	}
+
+	private static void finishStrawRest(GameTestHelper context, boolean day) {
+		ServerLevel level = BedSleepHarness.begin(context);
+		BedSleepHarness.setClearWeather(level);
+		if (day) {
+			BedSleepHarness.requireDay(context);
+		} else {
+			BedSleepHarness.requireNight(context);
+		}
+		BedSleepHarness.Sleeper sleeper = BedSleepHarness.enterStrawBed(context, BedSleepHarness.BED_FOOT);
+		BedSleepHarness.finishRest(context, sleeper.player());
+		long expectedClock = day ? BedSleepHarness.NIGHT_TARGET : BedSleepHarness.DAY_TIME;
+		context.assertValueEqual(level.getDefaultClockTime(), expectedClock, "clock");
+		BedSleepHarness.assertBedConsumed(context, sleeper.bed());
 		context.succeed();
 	}
 

@@ -1,6 +1,6 @@
 # Day Bed - master of the Night Bed
 
-Fabric mod for Minecraft **26.3** that lets players use a vanilla bed at any time to toggle world time between day and night.
+Fabric mod for Minecraft **26.3** that lets players use a vanilla bed at any time to toggle world time between day and night. Straw beds use the same toggle. Vanilla still destroys a straw bed when you get out, including after sleeping through the day, and sleeping in one still does not set your spawn. Shift-click an Overworld bed to set your spawn without sleeping. The action bar then says whether a normal click would sleep through the day or the night.
 
 ## Compatibility
 

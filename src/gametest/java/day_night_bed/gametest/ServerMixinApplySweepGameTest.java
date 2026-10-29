@@ -12,6 +12,7 @@ public class ServerMixinApplySweepGameTest {
 		load("net.minecraft.server.level.ServerPlayer");
 		load("net.minecraft.world.entity.player.Player");
 		load("net.minecraft.server.level.ServerLevel");
+		load("net.minecraft.world.level.block.AbstractBedBlock");
 		context.succeed();
 	}
 

@@ -5,7 +5,8 @@
 	"mixins": [
 		"ServerPlayerSleepMixin",
 		"PlayerSleepMixin",
-		"ServerLevelSleepMixin"
+		"ServerLevelSleepMixin",
+		"AbstractBedBlockUseMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

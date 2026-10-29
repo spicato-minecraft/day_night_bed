@@ -14,6 +14,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.AbstractBedBlock;
 import net.minecraft.world.level.block.BedBlock;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
@@ -105,7 +106,11 @@ final class BedSleepHarness {
 	}
 
 	static Sleeper sleeperAt(GameTestHelper context, BlockPos foot) {
-		BlockPos bed = placeBed(context, foot);
+		return sleeperAt(context, foot, Blocks.BED.red());
+	}
+
+	static Sleeper sleeperAt(GameTestHelper context, BlockPos foot, Block bedBlock) {
+		BlockPos bed = placeBed(context, foot, bedBlock);
 		ServerPlayer player = context.makeMockServerPlayerInLevel();
 		player.setGameMode(GameType.CREATIVE);
 		ServerLevel level = context.getLevel();
@@ -114,13 +119,47 @@ final class BedSleepHarness {
 	}
 
 	static Sleeper enterBed(GameTestHelper context, BlockPos foot) {
-		Sleeper sleeper = sleeperAt(context, foot);
+		return enterBed(context, sleeperAt(context, foot));
+	}
+
+	static Sleeper enterStrawBed(GameTestHelper context, BlockPos foot) {
+		BlockPos bed = placeBed(context, foot, Blocks.STRAW_BED);
+		ServerPlayer player = context.makeMockServerPlayerInLevel();
+		player.setGameMode(GameType.CREATIVE);
+		ServerLevel level = context.getLevel();
+		player.teleportTo(level, bed.getX() + 0.5, bed.getY(), bed.getZ() + 0.5, Set.of(), 0.0F, 0.0F, true);
+		return enterBed(context, new Sleeper(player, bed));
+	}
+
+	private static Sleeper enterBed(GameTestHelper context, Sleeper sleeper) {
 		Either<Player.BedSleepingProblem, Unit> result = trySleep(sleeper);
 		if (result.left().isPresent()) {
 			throw context.assertionException("sleep rejected: " + result.left().get());
 		}
 		context.assertTrue(sleeper.player().isSleeping(), "player should be in the bed");
 		return sleeper;
+	}
+
+	static void assertBedRemains(GameTestHelper context, BlockPos bed) {
+		assertBedPresent(context, bed, true);
+	}
+
+	static void assertBedConsumed(GameTestHelper context, BlockPos bed) {
+		assertBedPresent(context, bed, false);
+	}
+
+	private static void assertBedPresent(GameTestHelper context, BlockPos bed, boolean present) {
+		ServerLevel level = context.getLevel();
+		BlockPos head = bed.relative(Direction.EAST);
+		boolean footIsBed = level.getBlockState(bed).getBlock() instanceof AbstractBedBlock;
+		boolean headIsBed = level.getBlockState(head).getBlock() instanceof AbstractBedBlock;
+		if (present) {
+			context.assertTrue(footIsBed, "bed foot should still be there");
+			context.assertTrue(headIsBed, "bed head should still be there");
+		} else {
+			context.assertFalse(footIsBed, "straw bed foot should be gone after leaving");
+			context.assertFalse(headIsBed, "straw bed head should be gone after leaving");
+		}
 	}
 
 	/**
@@ -166,7 +205,11 @@ final class BedSleepHarness {
 	}
 
 	private static BlockPos placeBed(GameTestHelper context, BlockPos foot) {
-		BlockState footState = Blocks.BED.red().defaultBlockState()
+		return placeBed(context, foot, Blocks.BED.red());
+	}
+
+	private static BlockPos placeBed(GameTestHelper context, BlockPos foot, Block bedBlock) {
+		BlockState footState = bedBlock.defaultBlockState()
 				.setValue(BedBlock.FACING, Direction.EAST)
 				.setValue(BedBlock.PART, BedPart.FOOT)
 				.setValue(BedBlock.OCCUPIED, false);

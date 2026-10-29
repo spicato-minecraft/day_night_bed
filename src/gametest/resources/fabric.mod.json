@@ -8,6 +8,7 @@
 		"fabric-gametest": [
 			"day_night_bed.gametest.ModLoadsGameTest",
 			"day_night_bed.gametest.BedSleepGameTest",
+			"day_night_bed.gametest.BedSpawnGameTest",
 			"day_night_bed.gametest.ServerMixinApplySweepGameTest"
 		],
 		"fabric-client-gametest": [

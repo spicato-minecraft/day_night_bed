@@ -1,4 +1,6 @@
 {
 	"sleep.day_night_bed.resting_through_day": "Resting through the day",
-	"sleep.day_night_bed.players_resting": "%s/%s players resting"
+	"sleep.day_night_bed.players_resting": "%s/%s players resting",
+	"sleep.day_night_bed.click_to_sleep_through_day": "Click to sleep through Day",
+	"sleep.day_night_bed.click_to_sleep_through_night": "Click to sleep through night"
 }
